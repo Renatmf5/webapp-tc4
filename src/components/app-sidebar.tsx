@@ -4,7 +4,6 @@ import * as React from "react"
 import {
   AudioWaveform,
   BookOpen,
-  Bot,
   SquareTerminal,
 } from "lucide-react"
 
@@ -49,28 +48,13 @@ const data = {
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        }
-      ],
-    },
-    {
       title: "Documentation",
       url: "#",
       icon: BookOpen,
       items: [
         {
           title: "Introduction",
-          url: "#",
+          url: "documentation/introduction",
         },
         {
           title: "Models",
