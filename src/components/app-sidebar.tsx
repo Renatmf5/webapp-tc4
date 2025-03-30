@@ -51,10 +51,11 @@ const data = {
       title: "Documentation",
       url: "#",
       icon: BookOpen,
+      isActive: true,
       items: [
         {
           title: "Introduction",
-          url: "documentation/introduction",
+          url: "/documentation/introduction",
         },
         {
           title: "Models",
