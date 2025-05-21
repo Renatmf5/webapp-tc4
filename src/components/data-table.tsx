@@ -1,15 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import {
   ColumnDef,
-  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
-  SortingState,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 
@@ -22,58 +20,103 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import { useState, useEffect } from "react"
+import { fetchCarteirasFactor } from "@/../services/api"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useState, useEffect } from 'react'
-import { fetchTradingData } from '@/../services/api'
 
 export default function TradingTable() {
   const [data, setData] = useState<any[]>([]);
-  const [columns, setColumns] = useState<ColumnDef<any, any>[]>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const placeholder_filter = "Search...";
-  const firstColumn = "created_at"; // Ajuste para a primeira coluna que será filtrável
+
+  // Definição das colunas
+  const columns: ColumnDef<any, any>[] = [
+    {
+      accessorKey: "carteira",
+      header: "Carteira",
+    },
+    {
+      accessorKey: "data_posicao",
+      header: "Data Posição",
+    },
+    {
+      accessorKey: "valor_atualizado",
+      header: "Valor Atualizado",
+      cell: ({ getValue }) => {
+        const value = parseFloat(getValue() as string).toFixed(2);
+        return <span className="text-black">{value}</span>;
+      },
+    },
+    {
+      accessorKey: "acoes",
+      header: "Ações (Peso)",
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return <span className="text-black">{value}</span>;
+      },
+    },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const tradingData = await fetchTradingData();
+        const cacheKey = "tradingDataCache";
+        const cacheTimestampKey = "tradingDataCacheTimestamp";
 
-        // Configurar as colunas dinamicamente
-        const columnDefs: ColumnDef<any, any>[] = Object.keys(tradingData[0] || {}).map((key) => {
-          if (key === "unrealizedPnl" || key === "profit_loss" || key === "trade_return") {
-            return {
-              accessorKey: key,
-              header: key.replace(/_/g, ' ').toUpperCase(),
-              cell: ({ getValue }) => {
-                const value = parseFloat(getValue() as string);
-                let color = "text-black"; // Preto para valores 0
-                if (value > 0) color = "text-green-500"; // Verde para valores positivos
-                if (value < 0) color = "text-red-500"; // Vermelho para valores negativos
+        // Verifica se os dados estão no cache e se ainda são válidos
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
 
-                // Adicionar o símbolo de porcentagem para a coluna trade_return
-                const formattedValue = key === "trade_return" ? `${value.toFixed(2)}%` : value.toFixed(2);
+        if (cachedData && cachedTimestamp) {
+          const now = Date.now();
+          const cacheAge = now - parseInt(cachedTimestamp, 10);
 
-                return <span className={color}>{formattedValue}</span>;
-              },
-            };
+          // Verifica se o cache tem menos de 1 hora (3600000 ms)
+          if (cacheAge < 3600000) {
+            console.log("Using cached data");
+            const parsedData = JSON.parse(cachedData);
+            setData(parsedData);
+            setIsLoading(false);
+            return;
+          } else {
+            console.log("Cache expired, fetching new data");
+            localStorage.removeItem(cacheKey);
+            localStorage.removeItem(cacheTimestampKey);
           }
-          return {
-            accessorKey: key,
-            header: key.replace(/_/g, ' ').toUpperCase(),
-            cell: ({ getValue }) => {
-              const value = getValue();
-              return <span className="text-black">{value}</span>; // Preto para outras colunas
-            },
-          };
-        });
+        }
 
-        setColumns(columnDefs);
-        setData(tradingData);
+        // Caso não tenha cache ou esteja expirado, faz a requisição
+        const tradingData = await fetchCarteirasFactor();
+        console.log("Fetched trading data:", tradingData);
+
+        // Verifica se tradingData é um array válido
+        if (!Array.isArray(tradingData)) {
+          console.error("Invalid trading data format:", tradingData);
+          setData([]);
+          return;
+        }
+
+        // Transformar o JSON em um array de objetos para a tabela
+        const transformedData = tradingData.flatMap((item) =>
+          Object.entries(item).map(([carteira, valores]: any) => ({
+            carteira,
+            data_posicao: valores.data_posicao,
+            valor_atualizado: valores.valor_atualizado,
+            acoes: Object.entries(valores.acoes || {})
+              .map(
+                ([acao, detalhes]: any) =>
+                  `${acao} (${(detalhes.peso * 100).toFixed(2)}%)`
+              )
+              .join(", "),
+          }))
+        );
+
+        // Salva os dados no cache (localStorage) com o timestamp atual
+        localStorage.setItem(cacheKey, JSON.stringify(transformedData));
+        localStorage.setItem(cacheTimestampKey, Date.now().toString());
+
+        setData(transformedData);
       } catch (error) {
-        console.error('Error fetching trading data:', error);
+        console.error("Error fetching trading data:", error);
       } finally {
         setIsLoading(false);
       }
@@ -86,58 +129,38 @@ export default function TradingTable() {
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting,
-    state: {
-      columnFilters,
-      sorting,
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      sorting: [{ id: "data_posicao", desc: true }], // Ordena da mais recente para a mais antiga
+      pagination: { pageSize: 10 }, // Define o tamanho da página como 10
     },
   });
 
   return (
     <div>
-      <div className="flex items-center py-4">
-        {!isLoading && columns.length > 0 && (
-          <Input
-            placeholder={placeholder_filter}
-            value={(table.getColumn(firstColumn)?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-              table.getColumn(firstColumn)?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        )}
-      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </TableHead>
-                  )
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+                <TableRow key={row.id}>
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -155,23 +178,44 @@ export default function TradingTable() {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
+      <div className="flex items-center justify-between py-4">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm">
+            Página {table.getState().pagination.pageIndex + 1} de{" "}
+            {table.getPageCount()}
+          </span>
+          <select
+            className="border rounded p-1 text-sm"
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[5, 10, 20].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Mostrar {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
     </div>
   );

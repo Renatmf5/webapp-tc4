@@ -26,37 +26,112 @@ export default function DocIntro() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">
-              Este projeto é uma aplicação de trading automatizado que utiliza dados de mercado da Binance para realizar análises e executar operações de compra e venda de criptomoedas. Ele combina modelos de Machine Learning, Deep Learning e Aprendizado por Reforço, além de uma infraestrutura robusta na AWS.
+              Este projeto apresenta uma aplicação com dois modelos principais, ambos voltados para o entendimento e previsão dos retornos do mercado de ações brasileiro (B3). Utilizamos conceitos de Factor Investing para realizar análises iniciais e implementar tanto modelos de seleção de carteiras de ações quanto de geração de features para redes neurais, com o objetivo de prever movimentos do mercado.
+
+              O modelo base adotado é o Fama-French Five-Factor Model, uma extensão do tradicional modelo de três fatores proposto por Fama e French (1993). Esta abordagem, amplamente utilizada no Factor Investing, busca explicar e explorar os principais fatores sistemáticos que impulsionam os retornos das ações.
+
+              No projeto, combinamos indicadores fundamentalistas derivados do modelo de Fama-French com análise técnica, a fim de alimentar algoritmos de Machine Learning e Deep Learning. A aplicação é sustentada por uma infraestrutura robusta na AWS, garantindo escalabilidade e eficiência no processamento dos dados.
             </p>
             <p className="text-gray-600 mb-4">
-              Vale ressaltar que prever movimentos no mercado financeiro é uma tarefa extremamente desafiadora, dado que o mercado é influenciado por inúmeros fatores imprevisíveis. Esta é a versão 1 do projeto, que ainda está em fase de testes e pode não gerar lucros substanciais e consistentes. No entanto, o projeto demonstra um fluxo completo e complexo de dados para tentar prever movimentos de mercado. Para uma versão futura, planeja-se incluir análises de textos e notícias, que têm grande impacto nos preços de mercado.
+              É importante destacar que prever movimentos do mercado financeiro é uma tarefa extremamente complexa, dada a influência de múltiplos fatores externos e imprevisíveis. Esta é a versão 1 do projeto, ainda em fase experimental, e os modelos de previsão mensal disponíveis na seção Playground - Predictions e Backtests podem não gerar lucros substanciais ou consistentes neste estágio.
+
+              Apesar dessas limitações, o modelo de alocação de carteiras com base em fatores já é uma abordagem consolidada e amplamente validada historicamente, com evidências de retornos consistentes ao longo do tempo.
+
+              Mesmo com ressalvas quanto à previsibilidade de curto prazo, o projeto demonstra um fluxo completo e sofisticado de coleta, processamento e modelagem de dados para apoiar decisões no mercado de capitais.
+
+              Para versões futuras, está prevista a inclusão de análises de texto e notícias como um novo fator de geração de features, dada sua relevância no impacto sobre os preços dos ativos.
             </p>
             <Separator className="my-4" />
             <Tabs defaultValue="overview" className="w-full">
               <TabsList>
                 <TabsTrigger value="overview">Visão Geral</TabsTrigger>
                 <TabsTrigger value="components">Componentes</TabsTrigger>
-                <TabsTrigger value="functions">Funcionalidades</TabsTrigger>
-                <TabsTrigger value="workflow">Como Funciona</TabsTrigger>
+                <TabsTrigger value="functions">funcionalidades</TabsTrigger>
+
               </TabsList>
 
               {/* Visão Geral */}
               <TabsContent value="overview">
-                <ScrollArea className="h-64">
+                <ScrollArea className="h-120">
                   <h2 className="text-xl font-semibold mb-2">Visão Geral</h2>
                   <p className="mb-2">
-                    O projeto é dividido em três principais sistemas:
+                    O projeto é composto por três principais sistemas integrados que viabilizam todo o pipeline de coleta, análise e previsão do mercado de ações brasileiro, com foco na B3:
                   </p>
                   <ul className="list-disc pl-6">
                     <li>
-                      <strong>Sistema de Trading:</strong> Executa operações de compra e venda em tempo real utilizando modelos de Machine Learning e Deep Learning.
+                      <strong className="mb-4">Sistema de Coleta e Armazenamento de Dados (Scraping de Dados):</strong>
+                      <p className="mb-4 mt-6 " >
+                        Este sistema, localizado no repositório <strong>b3-trading-tc4</strong>, é responsável pela coleta automatizada de dados fundamentalistas de todas as empresas listadas atualmente na B3. Os dados são obtidos diretamente das Demonstrações Financeiras (DREs, Balanço Patrimonial, DFC, DVA) disponibilizadas no site oficial da CVM, cobrindo todos os trimestres históricos desde 2010.
+                      </p>
+                      <ul className="list-disc pl-6 text-gray-600">
+                        <li>
+                          A partir dessas demonstrações contábeis, extraímos e estruturamos os principais fatores fundamentais utilizados no modelo de Fama-French Five Factors, como valor patrimonial, lucratividade, investimento e tamanho da empresa.
+                        </li>
+                        <li>
+                          Os dados são armazenados em um Data Lake hospedado na AWS (Amazon S3), o que garante escalabilidade, segurança e fácil integração com outras ferramentas do projeto.
+                        </li>
+                      </ul>
+                      <p>Esses dados alimentam dois produtos principais:</p>
+                      <ul className="list-disc pl-6 text-gray-600">
+                        <li>
+                          A carteira mensal baseada em fatores, construída com base em rankings dos fatores fundamentalistas;
+                        </li>
+                        <li>
+                          A geração de features para os modelos de Machine Learning e Deep Learning, com foco especial em modelos LSTM (Long Short-Term Memory) para previsão de preços e sinais de compra/venda.
+                        </li>
+                      </ul>
                     </li>
                     <li>
-                      <strong>Laboratório de Modelos:</strong> Realiza backtests e otimizações em estratégias de negociação utilizando dados históricos refinados.
+                      <strong className="mt-6 mb-4">Laboratório de Modelagem e Treinamento de Modelos:</strong>
+                      <p className="mb-4 mt-6 ">
+                        Ainda no repositório <strong>b3-trading-tc4</strong>, este módulo é responsável por toda a parte de análise, engenharia de dados e modelagem preditiva. Suas funções incluem:
+                      </p>
+                      <ul className="list-disc pl-6 text-gray-600">
+                        <li>
+                          Análise exploratória de dados contábeis e técnicos, visando entender padrões, sazonalidades e tendências de mercado;
+                        </li>
+                        <li>
+                          Construção de indicadores técnicos (como médias móveis, RSI, MACD, etc.), que capturam sinais de curto prazo e comportamento do preço;
+                        </li>
+                        <li>
+                          Estudos de correlação e regressão entre os fatores fundamentais e o retorno das ações, buscando identificar os fatores mais relevantes;
+                        </li>
+                        <li>
+                          Treinamento de modelos preditivos, com destaque para dois tipos de LSTM:
+                          <ul className="list-disc pl-6 text-gray-600">
+                            <li>LSTM de Classificação: prevê a direção do preço (compra, venda, neutro);</li>
+                            <li>LSTM de Regressão: estima o preço-alvo de cada ação em um horizonte de 1 mês.</li>
+                          </ul>
+                        </li>
+                        <li>
+                          Esses modelos são treinados de forma individual para cada ativo da B3, utilizando janelas móveis temporais. Eles são otimizados com métricas como RMSE, MAE, accuracy e precision, e estão prontos para serem consumidos em produção.
+                        </li>
+                      </ul>
                     </li>
                     <li>
-                      <strong>Sistema de Coleta de Dados:</strong> Coleta e refina dados históricos de candles da Binance Futures, armazenando-os em um Data Lake.
-                    </li>
+                      <div className="mt-6">
+                        <h2 className="text-xl font-semibold mb-4">Sistema de API e Integração com Plataforma Web</h2>
+                        <p className="mb-4">
+                          O sistema de APIs está no repositório <strong>FastAPI-tc4</strong> e tem como papel centralizar as operações de previsão, gestão de modelos e exposição dos resultados ao usuário da plataforma. Suas principais responsabilidades incluem:
+                        </p>
+                        <ul className="list-disc pl-6 text-gray-600">
+                          <li>
+                            Carregar os modelos de LSTM e os scalers correspondentes diretamente do ambiente em nuvem (AWS S3), conforme o ativo selecionado pelo usuário;
+                          </li>
+                          <li>
+                            Executar as predições mensais (preço-alvo e recomendação) e retornar os resultados em tempo real;
+                          </li>
+                          <li>
+                            Buscar e apresentar métricas de desempenho dos modelos, como RMSE, MAE, acurácia e histórico de erro para diferentes ativos;
+                          </li>
+                          <li>
+                            Exibir o histórico de backtests realizados, tanto dos modelos de LSTM quanto da carteira gerada pelo modelo de Factor Investing;
+                          </li>
+                          <li>
+                            Fornecer acesso à performance histórica das carteiras recomendadas, permitindo análise comparativa com benchmarks como Ibovespa.
+                          </li>
+                        </ul>
+                      </div>                    </li>
                   </ul>
                 </ScrollArea>
               </TabsContent>
@@ -67,16 +142,16 @@ export default function DocIntro() {
                   <h2 className="text-xl font-semibold mb-2">Componentes do Projeto</h2>
                   <ul className="list-disc pl-6">
                     <li>
-                      <strong>FastAPI:</strong> API para gerenciar operações de trading, métricas de desempenho e integração com serviços externos. Este componente centraliza as regras de abertura e fechamento de ordens em tempo real e futuramente poderá operar diretamente na Binance. Ele também busca dados de trading para alimentar a plataforma web e gerencia operações de DML com o RDS PostgreSQL.
+                      <strong>FastAPI:</strong> API para gerenciar operações de trading, métricas de desempenho e integração com serviços externos. Este componente centraliza as indicadores de abertura e fechamento de pregões em tempo real e posteriormente entrega um predição mensal da Ação.
                     </li>
                     <li>
-                      <strong>Next.js:</strong> Interface web para visualização de métricas, backtests e operações em tempo real. Este repositório contém o código da plataforma web do projeto.
+                      <strong>Next.js:</strong> Interface web para visualização de métricas, backtests e Predições. Este repositório contém o código da plataforma web do projeto.
                     </li>
                     <li>
-                      <strong>Modelos de Machine Learning:</strong> XGBoost, LSTM, MLP, Ensemble e PPO. Esses modelos são treinados no laboratório de Machine Learning para realizar previsões e tomar decisões de trading.
+                      <strong>Modelos de Deep Learning:</strong> LSTM Classification, LSTM Regression. Esses modelos são treinados no laboratório de ML e DeepLearning para realizar previsões e tomar decisões de Compra e venda.
                     </li>
                     <li>
-                      <strong>Infraestrutura AWS:</strong> EC2, S3, RDS, ALB, Route53, CodePipeline e muito mais. A infraestrutura é provisionada utilizando AWS CDK.
+                      <strong>Infraestrutura AWS:</strong> EC2, S3,  ALB, Route53, CodePipeline e muito mais. A infraestrutura é provisionada utilizando AWS CDK.
                     </li>
                   </ul>
                 </ScrollArea>
@@ -88,45 +163,12 @@ export default function DocIntro() {
                   <h2 className="text-xl font-semibold mb-2">Funcionalidades Principais</h2>
                   <ul className="list-disc pl-6">
                     <li>
-                      <strong>Backtests:</strong> Permite testar estratégias de negociação em dados históricos para avaliar sua eficácia. Os dados históricos são coletados e armazenados no S3 pelo sistema de ingestão de dados.
+                      <strong>Carteira Factor:</strong> Apresenta métricas de desempenho do Modelo de Factor Investing, como retorno, volatilidade e Sharpe Ratio, com base em dados históricos. O sistema de backtest é responsável por calcular essas métricas.
                     </li>
                     <li>
-                      <strong>Execução de Trades:</strong> Realiza operações de compra e venda em tempo real com base em previsões dos modelos. Este processo é gerenciado pelo sistema de trading em tempo real.
-                    </li>
-                    <li>
-                      <strong>Monitoramento:</strong> Exibe métricas de desempenho, como lucro, perda e drawdown, utilizando a interface web desenvolvida em Next.js.
-                    </li>
-                    <li>
-                      <strong>Coleta de Dados:</strong> Obtém dados de mercado em tempo real e históricos da Binance. O sistema de ingestão de dados executa essa tarefa em batch e armazena os dados no S3.
+                      <strong>Predictions e Backtests:</strong> Realiza previsões mensais e backtests dos modelos de LSTM, permitindo ao usuário visualizar o desempenho histórico e as previsões futuras. O Usuário não precisa imputar nenhum dado, apenas selecionar o ativo desejado e o sistema irá retornar as previsões, o sistema tem a inteligencia de buscar as features contábeis mais recentes em nosso DataLake e concatenar com os indicadores técnicos que representam um fator momentum. Então o modelo tambem tem inteligencia de fazer a inferencia sobre um modelo pré treinado especifico para cada ação da lista, cada Aão tem seu modelo salvo em um bucket S3 responsavel por isso.
                     </li>
                   </ul>
-                </ScrollArea>
-              </TabsContent>
-
-              {/* Como Funciona */}
-              <TabsContent value="workflow">
-                <ScrollArea className="h-64">
-                  <h2 className="text-xl font-semibold mb-2">Como Funciona</h2>
-                  <p className="mb-2">
-                    O fluxo de trabalho do sistema é dividido em etapas:
-                  </p>
-                  <ol className="list-decimal pl-6">
-                    <li>
-                      <strong>Coleta de Dados:</strong> O sistema coleta dados de mercado em tempo real e históricos da Binance.
-                    </li>
-                    <li>
-                      <strong>Processamento:</strong> Os dados coletados são processados e indicadores técnicos são calculados.
-                    </li>
-                    <li>
-                      <strong>Previsões:</strong> Os modelos de Machine Learning fazem previsões com base nos dados processados.
-                    </li>
-                    <li>
-                      <strong>Execução:</strong> As previsões são usadas para executar operações de compra e venda.
-                    </li>
-                    <li>
-                      <strong>Monitoramento:</strong> Métricas de desempenho são exibidas na interface web para análise.
-                    </li>
-                  </ol>
                 </ScrollArea>
               </TabsContent>
             </Tabs>
@@ -135,33 +177,23 @@ export default function DocIntro() {
           {/* Rodapé com Links dos Repositórios */}
           <CardFooter className="flex flex-wrap justify-center gap-4 mt-4">
             <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/aws-infra-tc3" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> aws-infra-tc3
+              <a href="https://github.com/Renatmf5/aws-infra-tc4" target="_blank" rel="noopener noreferrer">
+                <FaGithub /> Infraestrutura AWS
               </a>
             </Button>
             <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/trading-system-tc3" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> trading-system-tc3
+              <a href="https://github.com/Renatmf5/b3-trading-tc4" target="_blank" rel="noopener noreferrer">
+                <FaGithub /> Laboratório de Modelagem e Treinamento
               </a>
             </Button>
             <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/FastAPI-Trading-tc3" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> FastAPI-Trading-tc3
+              <a href="https://github.com/Renatmf5/FastAPI-tc4" target="_blank" rel="noopener noreferrer">
+                <FaGithub /> FastAPI API do Projeto
               </a>
             </Button>
             <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/ingest-cripto-data" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> ingest-cripto-data
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/ml-labs-tc3" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> ml-labs-tc3
-              </a>
-            </Button>
-            <Button asChild variant="outline" className="flex items-center gap-2">
-              <a href="https://github.com/Renatmf5/webapp-tc3" target="_blank" rel="noopener noreferrer">
-                <FaGithub /> webapp-tc3
+              <a href="https://github.com/Renatmf5/webapp-tc4" target="_blank" rel="noopener noreferrer">
+                <FaGithub /> Plataforma Web
               </a>
             </Button>
           </CardFooter>

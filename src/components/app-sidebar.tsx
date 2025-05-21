@@ -25,7 +25,7 @@ const data = {
   },
   teams: [
     {
-      name: "Trading System.",
+      name: "Investing Funding.",
       logo: AudioWaveform,
       plan: "Startup",
     }
@@ -38,12 +38,12 @@ const data = {
       isActive: true,
       items: [
         {
-          title: "Backtests",
-          url: "/dashboard/backtests",
+          title: "Predictions e Backtests",
+          url: "/dashboard/predicts",
         },
         {
-          title: "Running Bot",
-          url: "/dashboard/bot-running",
+          title: "Carteira Factor",
+          url: "/dashboard/factorInvets",
         },
       ],
     },
