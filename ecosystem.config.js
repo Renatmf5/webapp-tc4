@@ -9,7 +9,7 @@ module.exports = {
       },
       env_production: {            // Variáveis específicas para produção
         NODE_ENV: 'production',
-        NEXT_PUBLIC_API_BASE_URL: 'http://localhost:8000/api/v1/',
+        NEXT_PUBLIC_API_BASE_URL: 'https://api.grupo-ever-rmf.com/api/v1/',
         PORT: 80,
       },
     },
