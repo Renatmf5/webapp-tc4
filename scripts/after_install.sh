@@ -4,5 +4,7 @@ echo "AfterInstall: Construindo a imagem Docker"
 sudo chown -R ec2-user:ec2-user ${DIR}
 cd ${DIR}
 
-# Construir a imagem Docker
-docker build -t web-nextjs-app .
+
+npm install 
+
+#npm run build

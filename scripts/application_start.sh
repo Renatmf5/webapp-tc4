@@ -21,9 +21,4 @@ export NODE_ENV=production
 export NEXT_PUBLIC_API_BASE_URL='https://api.grupo-ever-rmf.com/api/v1/'
 export PORT=80
 
-# Parar e remover qualquer contêiner existente com o mesmo nome
-docker stop web-nextjs-app || true
-docker rm web-nextjs-app || true
-
-# Iniciar o contêiner Docker
-docker run -d -p 80:80 --name web-nextjs-app web-nextjs-app
+pm2 start ecosystem.config.js --env production --name "web-nextjs-app" --watch -- --port 80
