@@ -1,5 +1,6 @@
 #!/bin/bash
-# scripts/application_stop.sh
+echo "ApplicationStop: Parando o contêiner Docker"
 
-# Parar a aplicação usando PM2
-pm2 stop web-nextjs-app || true
+# Parar e remover o contêiner
+docker stop web-nextjs-app || true
+docker rm web-nextjs-app || true
